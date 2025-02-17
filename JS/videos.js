@@ -5,17 +5,47 @@ const loadCategories = () => {
     .then((data) => displayCategories(data.categories))
     .catch((error) => console.log(error));
 };
+//remove active class
+const removeActiveClass = () => {
+  const buttons = document.getElementsByClassName("category-btn");
+  console.log(buttons);
+  for (let btn of buttons) {
+    btn.classList.remove("active");
+  }
+};
+// Load Category By id
+const loadCategory = (id) => {
+  fetch(`https://openapi.programming-hero.com/api/phero-tube/category/${id}`)
+    .then((res) => res.json())
+    .then((data) => {
+      //sobaike active class remove korao
+      removeActiveClass();
+
+      //id er class k active korao
+      const activeBtn = document.getElementById(`btn-${id}`);
+      activeBtn.classList.add("active");
+      displayVideos(data.category);
+    })
+
+    .catch((error) => console.log(error));
+};
 // Display Cateagories
 const displayCategories = (data) => {
+  console.log(data);
   const categoryContainer = document.getElementById("categories");
   data.forEach((item) => {
     // create button
     const button = document.createElement("button");
-    button.classList = "btn btn-warning";
+    button.classList = "btn  category-btn";
     button.innerText = item.category;
+    button.id = `btn-${item.category_id}`;
+    button.onclick = () => {
+      loadCategory(`${item.category_id}`);
+    };
     categoryContainer.append(button);
   });
 };
+
 // ---- ---- ----- ----- ---- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----
 // Load Videos
 const loadVideos = () => {
@@ -36,6 +66,18 @@ function getTime(time) {
 // displayVideos
 const displayVideos = (data) => {
   const videoSection = document.getElementById("videos");
+  videoSection.innerHTML = "";
+  if (data.length == 0) {
+    videoSection.classList.remove("grid");
+    videoSection.innerHTML = `
+    <div class="min-h-[300px] flex flex-col gap-5 justify-center items-center">
+    
+      <img src="resources/Icon.png" /> 
+      <h2 class="text-center text-2xl font-bold"> No Content Here in this Categery </h2> 
+    </div>`;
+  } else {
+    videoSection.classList.add("grid");
+  }
   data.forEach((item) => {
     const card = document.createElement("div");
     card.classList = "card card-compact";
